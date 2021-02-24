@@ -3,7 +3,7 @@ scalaVersion := "2.13.1"
 val sttpV = "2.0.0-RC7"
 
 libraryDependencies ++= Seq(
-  "dev.zio"                      %% "zio"                           % "1.0.0-RC17",
+  "dev.zio"                      %% "zio"                           % "1.0.4-2",
   "com.softwaremill.sttp.client" %% "async-http-client-backend-zio" % sttpV,
   "com.softwaremill.sttp.client" %% "circe"                         % sttpV,
   "io.circe"                     %% "circe-generic"                 % "0.12.3",
