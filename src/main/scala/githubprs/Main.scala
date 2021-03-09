@@ -1,26 +1,24 @@
 package githubprs
 
+import githubprs.github.{Github, GithubLive}
+import githubprs.githubtoken.GithubTokenLive
 import zio._
 import zio.console.Console
 
-object Main extends App {
+object Main extends zio.App {
 
   val owner = "guardian"
   val repo  = "support-service-lambdas"
 
-  def run(args: List[String]): ZIO[ZEnv, Nothing, Int] =
+  def run(args: List[String]): URIO[ZEnv, ExitCode] =
     program
-      .provide(new Console.Live with GithubLive with GithubToken {
-        val githubToken: GithubToken.Service = new GithubToken.Service {
-          val token: UIO[Token] = UIO.succeed(Token(args(0)))
-        }
-      })
+      .provideCustomLayer(GithubTokenLive.impl(args.head) >>> GithubLive.impl)
       .tapError(e => console.putStrLn(e.toString))
-      .fold(_ => 1, _ => 0)
+      .fold(_ => ExitCode.failure, _ => ExitCode.success)
 
-  val program: RIO[Console with GithubToken with Github, Unit] =
+  val program: ZIO[Console with Github, Throwable, Unit] =
     for {
-      repos <- Github.factory.repos
+      repos <- Github.repos
       //pulls <- Github.factory.pulls(owner, repo)
       _ <- console.putStrLn(repos.toString)
     } yield ()
